@@ -11,6 +11,7 @@ const global = new Configuration({
 const presets = new Configuration({
   default: {
     attachments: true,
+    deferUploadInsertion: false,
     markdown: true,
     multiLine: true,
     permittedAttachmentTypes: null,

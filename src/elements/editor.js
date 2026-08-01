@@ -267,6 +267,10 @@ export class LexicalEditorElement extends HTMLElement {
     return this.config.get("attachments")
   }
 
+  get defersUploadInsertion() {
+    return Boolean(this.config.get("deferUploadInsertion"))
+  }
+
   get supportsMarkdown() {
     return this.supportsRichText && this.config.get("markdown")
   }

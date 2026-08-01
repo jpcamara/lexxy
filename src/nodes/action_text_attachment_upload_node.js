@@ -244,7 +244,7 @@ export class ActionTextAttachmentUploadNode extends ActionTextAttachmentNode {
   }
 }
 
-class AttachmentNodeConversion {
+export class AttachmentNodeConversion {
   constructor(uploadNode, blob, previewSrc) {
     this.uploadNode = uploadNode
     this.blob = blob
