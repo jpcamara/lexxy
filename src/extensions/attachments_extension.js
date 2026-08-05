@@ -36,10 +36,22 @@ export class AttachmentsExtension extends LexxyExtension {
       register: (editor) => {
         const dragAndDrop = new AttachmentDragAndDrop(editor)
 
+        // Deferred uploads never create upload nodes, so the mutation
+        // listener below can't count them; their lifecycle events carry a
+        // `deferred` flag and adjust the same counter.
+        const countDeferredStart = (event) => { if (event.detail?.deferred) this.#adjustUploadsCount(1) }
+        const countDeferredEnd = (event) => { if (event.detail?.deferred) this.#adjustUploadsCount(-1) }
+        this.editorElement.addEventListener("lexxy:upload-start", countDeferredStart)
+        this.editorElement.addEventListener("lexxy:upload-end", countDeferredEnd)
+
         return mergeRegister(
           editor.registerNodeTransform(ActionTextAttachmentNode, $extractAttachmentFromParagraph),
           editor.registerCommand(DELETE_CHARACTER_COMMAND, $collapseIntoGallery, COMMAND_PRIORITY_NORMAL),
           editor.registerMutationListener(ActionTextAttachmentUploadNode, this.#handleUploadMutations.bind(this)),
+          () => {
+            this.editorElement.removeEventListener("lexxy:upload-start", countDeferredStart)
+            this.editorElement.removeEventListener("lexxy:upload-end", countDeferredEnd)
+          },
           () => dragAndDrop.destroy()
         )
       }
@@ -60,6 +72,11 @@ export class AttachmentsExtension extends LexxyExtension {
     if (this.#uploadsCount !== previousUploadsCount) {
       this.#setUploadsValidity()
     }
+  }
+
+  #adjustUploadsCount(delta) {
+    this.#uploadsCount += delta
+    this.#setUploadsValidity()
   }
 
   #setUploadsValidity() {

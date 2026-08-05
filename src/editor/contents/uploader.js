@@ -1,11 +1,16 @@
 import { $getSelection } from "lexical"
 import { isPreviewableImage } from "../../helpers/html_helper"
 import { $createImageGalleryNode, $findOrCreateGalleryForImage, ImageGalleryNode } from "../../nodes/image_gallery_node"
+import { DeferredUploader } from "../attachments/deferred_uploader"
 
 export default class Uploader {
   #files
 
   static for(editorElement, files, options = {}) {
+    if (editorElement.defersUploadInsertion && !options.pending) {
+      return new DeferredUploader(editorElement, files)
+    }
+
     const UploaderKlass = GalleryUploader.handle(editorElement, files) ? GalleryUploader : Uploader
     return new UploaderKlass(editorElement, files, options)
   }
