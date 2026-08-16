@@ -38,6 +38,27 @@ Then import it in your JavaScript entry point:
 import "lexxy"
 ```
 
+### Sharing lexical with other packages
+
+`lexxy.js` bundles its own copy of [Lexical](https://lexical.dev). When
+another package on the page must share the editor's Lexical (a
+collaboration binding, for example), use the shared build instead:
+`lexxy-shared-lexical.js` is the same module with `lexical` external,
+resolved through its own pin:
+
+```ruby
+# importmap.rb
+pin "lexxy", to: "lexxy-shared-lexical.js"
+pin "lexical", to: "lexical.js"
+pin "@rails/activestorage", to: "activestorage.esm.js" # to support attachments
+```
+
+Lexical depends on class identity, so a page must run exactly one copy;
+with these pins, every bare `lexical` import resolves to the copy the
+editor uses. Apps that don't need to share anything keep the standard
+`lexxy.js` pin.
+
+
 ### With JavaScript bundlers
 
 If you're using [jsbundling-rails](https://github.com/rails/jsbundling-rails), esbuild, webpack, or any other JavaScript bundler, you can install the NPM package:
